@@ -19,6 +19,20 @@ def customer_list(request):
    return render(request, 'portfolio/customer_list.html',
                  {'customers': customer})
 
+@login_required
+def customer_new(request, pk):
+   customer = get_object_or_404(Customer, pk=pk)
+   if request.method == "POST":
+       # update
+       form = CustomerForm(request.POST, instance=customer)
+       if form.is_valid():
+           customer = form.save(commit=False)
+           customer.updated_date = timezone.now()
+           customer.save()
+           customer = Customer.objects.filter(created_date__lte=timezone.now())
+           return render(request, 'portfolio/customer_list.html',
+                         {'customers': customer})
+
 
 @login_required
 def customer_edit(request, pk):
